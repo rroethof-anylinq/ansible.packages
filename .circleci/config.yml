@@ -1,0 +1,114 @@
+# See: https://circleci.com/docs/2.0/configuration-reference
+version: 2.1
+
+jobs:
+  check_whitespace:
+    docker:
+      - image: cimg/base:2022.02
+    resource_class: small
+    steps:
+      - checkout
+      - run:
+          name: Check for trailing whitespace
+          command: tests/check-trailing-whitespace
+      - run:
+          name: Check that all text files end in a trailing newline
+          command: tests/check-trailing-newline
+
+  build_rockylinux8:
+    docker:
+      - image: geerlingguy/docker-rockylinux8-ansible
+    resource_class: small
+    steps:
+      - checkout
+      - run:
+          name: Create symlink to role
+          command: |
+            mkdir -p "${HOME}/.ansible/roles" && \
+            ln -s "${HOME}/project" "${HOME}/.ansible/roles/anysure.packages"
+      - run:
+          name: Create Python3 virtual environment
+          command: python3 -m venv venv
+      - run:
+          name: Test role with molecule
+          command: |
+            . venv/bin/activate && \
+            pip install --upgrade pip && \
+            pip install wheel==0.34.2 && \
+            pip install -r molecule/requirements.txt && \
+            ansible --version && \
+            molecule --version && \
+            molecule test
+
+  build_centos8:
+    docker:
+      - image: geerlingguy/docker-centos8-ansible
+    resource_class: small
+    steps:
+      - checkout
+      - run:
+          name: Create symlink to role
+          command: |
+            mkdir -p "${HOME}/.ansible/roles" && \
+            ln -s "${HOME}/project" "${HOME}/.ansible/roles/anysure.packages"
+      - run:
+          name: Create Python3 virtual environment
+          command: python3 -m venv venv
+      - run:
+          name: Test role with molecule
+          command: |
+            . venv/bin/activate && \
+            pip install --upgrade pip && \
+            pip install wheel==0.34.2 && \
+            pip install -r molecule/requirements.txt && \
+            ansible --version && \
+            molecule --version && \
+            molecule test
+
+  build_debian11:
+    docker:
+      - image: geerlingguy/docker-debian11-ansible
+    resource_class: small
+    steps:
+      - checkout
+      - run:
+          name: Create symlink to role
+          command: |
+            mkdir -p "${HOME}/.ansible/roles" && \
+            ln -s "${HOME}/project" "${HOME}/.ansible/roles/anysure.packages"
+      - run:
+          name: Create Python3 virtual environment
+          command: python3 -m venv venv
+      - run:
+          name: Test role with molecule
+          command: |
+            . venv/bin/activate && \
+            pip install --upgrade pip && \
+            pip install wheel==0.34.2 && \
+            pip install -r molecule/requirements.txt && \
+            ansible --version && \
+            molecule --version && \
+            molecule test
+
+
+# To use a scheduled execution in CircleCI, we need to introduce a workflow
+# see https://circleci.com/docs/2.0/triggers/#scheduled-builds
+workflows:
+  version: 2
+  on-commit:
+    jobs:
+      - build_rockylinux8
+      - build_centos8
+      - build_debian11
+  weekly-schedule:
+    triggers:
+      - schedule:
+          cron: "55 17 * * 5" # 17:55 every friday (see https://crontab.guru/)
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - build_rockylinux8
+      - build_centos8
+      - build_debian11
