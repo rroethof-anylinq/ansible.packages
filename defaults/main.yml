@@ -1,0 +1,28 @@
+---
+# defaults file for packages
+
+# List of packages
+package_list: 
+  - name: apt-transport-https
+    yum_ignore: yes
+  - name: glances
+    yum_ignore: yes
+
+# List of packages
+package_list_host: []
+
+# List of packages
+package_list_group: []
+
+# Packages state
+package_state: present
+
+# Update cache?
+package_update_cache: yes
+
+# Cache valid time
+package_cache_valid_time: 3600
+
+apt_sources:
+  - "deb http://mirror.leaseweb.net/debian/ {{ ansible_distribution_release }} main contrib non-free"
+  - "deb http://security.debian.org/debian-security {{ ansible_distribution_release }}-security main contrib non-free"

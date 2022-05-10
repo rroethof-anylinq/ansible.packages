@@ -1,0 +1,67 @@
+---
+# tasks file for packages
+- name: Collect only facts returned by facter
+  ansible.builtin.setup:
+    gather_subset:
+      - '!all'
+      - '!any'
+      - facter
+
+- block:
+  - name: Template APT source.list
+    ansible.builtin.template:
+      src: apt/source.list.j2
+      dest: /etc/apt/sources.list
+      owner: root
+      group: root
+      mode: 0644
+    register: apt_template_source_list
+
+  - name: Add APT repositories into sources list
+    ansible.builtin.apt_repository:
+      codename: "{{ item.codename | default(omit) }}"
+      filename: "{{ item.filename }}"
+      install_python_apt: "{{ item.install_python_apt | default(omit) }}"
+      mode: "{{ item.mode | default(omit) }}"
+      repo: "{{ item.repo }}"
+      state: "{{ item.state | default(omit) }}"
+      update_cache: "{{ item.update_cache | default('yes') }}"
+      update_cache_retries: "{{ item.update_cache_retries | default(omit) }}"
+      update_cache_retry_max_delay: "{{ item.update_cache_retry_max_delay  | default(omit) }}"
+      validate_cert: "{{ item.validate_certs | default(omit) }}"
+    with_items:
+      - "{{ apt_repositories }}"
+
+  - name: Install APT packages
+    ansible.builtin.apt:
+      name: "{{ item.apt | default(item.name) }}"
+      state: "{{ item.state | default('present') }}"
+      update_cache: "{{ package_update_cache | default(true) }}"
+      cache_valid_time: "{{ package_cache_valid_time | default(3600) }}"
+      autoclean: "{{ item.autoclean | default(omit) }}"
+      autoremove: "{{ item.autoremove | default(omit) }}"
+      purge: "{{ item.purge | default(omit) }}"
+      upgrade: "{{ item.upgrade | default(omit) }}"
+      install_recommends: "{{ item.apt_install_recommends | default(omit) }}"
+    when: (item.apt_ignore|default('no'))|string in 'False,false,No,no'
+    with_items: "{{ packages }}"  
+  when: ansible_pkg_mgr == 'apt'
+
+- block:
+  - name: yum
+    ansible.builtin.yum:
+      name: "{{ item.yum | default(item.name) }}"
+      state: "{{ item.state | default('present') }}"
+      update_cache: "{{ package_update_cache }}"
+    when: (item.yum_ignore|default('no'))|string in 'False,false,No,no'
+    with_items: "{{ packages }}"
+  when: ansible_pkg_mgr == 'yum'
+
+- block:
+  - name: dnf
+    ansible.builtin.dnf:
+      name: "{{ item.dnf | default(item.name) }}"
+      state: "{{ item.state | default('present') }}"
+    when: (item.dnf_ignore|default('no'))|string in 'False,false,No,no'
+    with_items: "{{ packages }}"
+  when: ansible_pkg_mgr == 'dnf'

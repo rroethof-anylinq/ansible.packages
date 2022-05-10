@@ -1,0 +1,28 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: vagrant
+  provider:
+    name: virtualbox
+lint: |
+  set -e
+  yamllint .
+  ansible-lint
+platforms:
+  - name: debian11
+    image: "geerlingguy/debian11"
+  - name: rockylinux8
+    image: "geerlingguy/rockylinux8"
+provisioner:
+  name: ansible
+  lint: |
+    set -e
+    yamllint .
+    ansible-lint
+verifier:
+  name: ansible
+  lint: |
+    set -e
+    yamllint .
+    ansible-lint

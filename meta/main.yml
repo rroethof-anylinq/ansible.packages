@@ -1,0 +1,24 @@
+galaxy_info:
+  role_name: packages
+  namespace: anysure
+
+  author: Ronny Roethof
+  description: Configures the repository's, settings and runs updates for Debian and RHEL systems.
+  company: AnyLinQ B.V.
+
+  license: Apache License, Version 2.0
+
+  min_ansible_version: 2.9
+
+  platforms:
+    - name: Debian
+      versions:
+        - bullseye
+    - name: EL
+      versions:
+        - 8
+
+  galaxy_tags:
+    - system
+
+dependencies: []
