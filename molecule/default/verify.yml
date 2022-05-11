@@ -6,6 +6,6 @@
   become: true
   gather_facts: false
   tasks:
-  - name: Example assertion
+  - name: Verify Packages
     assert:
-      that: true
+      that: "'htop' in ansible_facts.packages"

@@ -5,8 +5,8 @@
 package_list: 
   - name: apt-transport-https
     yum_ignore: yes
-  - name: glances
-    yum_ignore: yes
+    dnf_ignore: yes
+  - name: htop
 
 # List of packages
 package_list_host: []
