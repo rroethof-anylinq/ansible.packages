@@ -3,10 +3,8 @@
 - name: Collect only facts returned by facter
   ansible.builtin.setup:
     gather_subset:
-      - '!all'
-      - '!any'
-      - facter
-
+      - 'all'
+    
 - block:
   - name: Template APT source.list
     ansible.builtin.template:
@@ -20,7 +18,7 @@
   - name: Add APT repositories into sources list
     ansible.builtin.apt_repository:
       codename: "{{ item.codename | default(omit) }}"
-      filename: "{{ item.filename }}"
+      filename: "{{ item.filename | default(omit) }}"
       install_python_apt: "{{ item.install_python_apt | default(omit) }}"
       mode: "{{ item.mode | default(omit) }}"
       repo: "{{ item.repo }}"
@@ -31,6 +29,7 @@
       validate_cert: "{{ item.validate_certs | default(omit) }}"
     with_items:
       - "{{ apt_repositories }}"
+    when: apt_repositories is defined
 
   - name: Install APT packages
     ansible.builtin.apt:
