@@ -14,7 +14,7 @@ The following is a set of guidelines for contributing to the AnySURE Ansible rol
 *   [Git Guidelines](#git-guidelines)
 *   [Ansible Guidelines](#ansible-guidelines)
 
-[Code of Conduct](https://github.com/anysure/ansible.packages/CODE_OF_CONDUCT.md)
+[Code of Conduct](https://github.com/anysure/ansible.packages/blob/master/CODE_OF_CONDUCT.md)
 
 ## Ask a Question
 
